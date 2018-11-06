@@ -1,9 +1,9 @@
 //! Security Framework support.
 pub extern crate security_framework;
 
-use self::security_framework::secure_transport::{SslStream, ClientBuilder};
-use tls::{Stream, TlsStream, TlsHandshake};
+use self::security_framework::secure_transport::{ClientBuilder, SslStream};
 use std::error::Error;
+use tls::{Stream, TlsHandshake, TlsStream};
 
 impl TlsStream for SslStream<Stream> {
     fn get_ref(&self) -> &Stream {

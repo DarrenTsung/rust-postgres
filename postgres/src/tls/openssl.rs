@@ -5,8 +5,10 @@ use std::error::Error;
 use std::fmt;
 
 use self::openssl::error::ErrorStack;
-use self::openssl::ssl::{SslMethod, SslConnector, SslConnectorBuilder, SslStream};
-use tls::{TlsStream, Stream, TlsHandshake};
+use self::openssl::ssl::{
+    ConnectConfiguration, SslConnector, SslConnectorBuilder, SslMethod, SslStream,
+};
+use tls::{Stream, TlsHandshake, TlsStream};
 
 impl TlsStream for SslStream<Stream> {
     fn get_ref(&self) -> &Stream {
@@ -35,7 +37,7 @@ impl fmt::Debug for OpenSsl {
 impl OpenSsl {
     /// Creates a `OpenSsl` with `SslConnector`'s default configuration.
     pub fn new() -> Result<OpenSsl, ErrorStack> {
-        let connector = SslConnectorBuilder::new(SslMethod::tls())?.build();
+        let connector = SslConnector::builder(SslMethod::tls())?.build();
         Ok(OpenSsl::from(connector))
     }
 
@@ -75,8 +77,13 @@ impl TlsHandshake for OpenSsl {
         domain: &str,
         stream: Stream,
     ) -> Result<Box<TlsStream>, Box<Error + Send + Sync>> {
-        let stream = if self.disable_verification {
-            self.connector.danger_connect_without_providing_domain_for_certificate_verification_and_server_name_indication(stream)?
+        let stream: SslStream<_> = if self.disable_verification {
+            SslConnector::builder(SslMethod::tls())?
+                .build()
+                .configure()?
+                .use_server_name_indication(false)
+                .verify_hostname(false)
+                .connect(domain, stream)?
         } else {
             self.connector.connect(domain, stream)?
         };

@@ -2,8 +2,8 @@
 pub use priv_io::Stream;
 
 use std::error::Error;
-use std::io::prelude::*;
 use std::fmt;
+use std::io::prelude::*;
 
 #[cfg(feature = "with-native-tls")]
 pub mod native_tls;

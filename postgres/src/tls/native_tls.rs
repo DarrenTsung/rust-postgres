@@ -5,7 +5,7 @@ use std::error::Error;
 use std::fmt;
 
 use self::native_tls::TlsConnector;
-use tls::{TlsStream, Stream, TlsHandshake};
+use tls::{Stream, TlsHandshake, TlsStream};
 
 impl TlsStream for native_tls::TlsStream<Stream> {
     fn get_ref(&self) -> &Stream {
